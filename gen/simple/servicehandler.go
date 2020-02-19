@@ -50,7 +50,7 @@ func (s *ServiceHandler) GetFoobarListHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	todosresponse, err := s.serviceInterface.GetFoobarList(ctx, &req, client)
+	str, err := s.serviceInterface.GetFoobarList(ctx, &req, client)
 	if err != nil {
 		s.genCallback.HandleError(ctx, w, common.DownstreamUnexpectedResponseError, "Downstream failure", err)
 		return
@@ -58,5 +58,5 @@ func (s *ServiceHandler) GetFoobarListHandler(w http.ResponseWriter, r *http.Req
 
 	headermap, httpstatus := common.RespHeaderAndStatusFromContext(ctx)
 	restlib.SetHeaders(w, headermap)
-	restlib.SendHTTPResponse(w, httpstatus, todosresponse, err)
+	restlib.SendHTTPResponse(w, httpstatus, str, err)
 }

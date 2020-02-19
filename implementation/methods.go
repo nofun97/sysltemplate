@@ -12,9 +12,12 @@ import (
 )
 
 // GetFoobarList refers to the endpoint in our sysl file
-func GetFoobarList(ctx context.Context, req *simple.GetFoobarListRequest, client simple.GetFoobarListClient) (*mydependency.TodosResponse, error) {
+func GetFoobarList(ctx context.Context, req *simple.GetFoobarListRequest, client simple.GetFoobarListClient) (*simple.Str, error) {
 
 	// Here we can make a request on the client object which was generated from the call to "myDownstream" in the sysl model
 	// We will get the id equal to one, which was generated from out {id} from /todos/{id<:int}
-	return client.GetTodos(ctx, &mydependency.GetTodosRequest{ID: 1})
+	ans, err := client.GetTodos(ctx, &mydependency.GetTodosRequest{ID: 1})
+	foo := simple.Str(ans.Title)
+
+	return &foo, err
 }

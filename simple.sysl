@@ -8,7 +8,9 @@ simple[package="simple"]:
     /foobar:
         GET:
             mydependency <- GET /todos/{id}
-            return ok <: mydependency.todosResponse
+            return str
+    !alias str:
+        string
 
 mydependency[package="mydependency"]:
     @version = "1.0"
@@ -24,6 +26,7 @@ mydependency[package="mydependency"]:
     /todos/{id<:int}:
         GET[mediatype="application/json", ~body]:
             return ok <:  todosResponse
+
 
 
     

@@ -5,9 +5,6 @@ app = simple
 down = mydependency # this can be a list separated by a space
 
 
-
-
-
 ####################################################################
 #                                                                  #
 #                                                                  #
@@ -17,7 +14,7 @@ down = mydependency # this can be a list separated by a space
 #                                                                  #
 #                                                                  #
 ####################################################################
-
+out = gen
 TMP = .tmp# Cache the server lib directory in tmp
 SERVERLIB = /var/tmp
 TRANSLOCATION = .tmp/server-lib/codegen/transforms
@@ -37,29 +34,28 @@ setup:
 	git clone https://github.service.anz/sysl/server-lib/ $(SERVERLIB)/server-lib || true  # Don't fail
 	cd  $(SERVERLIB)/server-lib && git fetch && git checkout tags/v0.1.9 || true
 	mkdir -p $(TMP)/server-lib/
-	mkdir -p gen/${app}
+	mkdir -p ${out}/${app}
 	# Copying server-lib to $(TMP)
 	cp -rf $(SERVERLIB)/server-lib $(TMP)/
-	$(foreach path, $(down), $(shell mkdir -p gen/$(path)))
-    $(foreach path, $(app), $(shell mkdir -p gen/$(path)))
+	$(foreach path, $(down), $(shell mkdir -p ${out}/$(path)))
+    $(foreach path, $(app), $(shell mkdir -p ${out}/$(path)))
 
 # Grab the import path for sysl from the go mod (in the same directory)
-goModLocation = go.mod
-goMod = $(shell cat $(goModLocation) | grep module | sed 's/module//' | sed -e 's/^[[:space:]]*//')
+goMod = $(shell cat go.mod | grep module | sed 's/module//' | sed -e 's/^[[:space:]]*//')
 
 
 # Generate files with internal git service
 gen:
-	$(foreach file, $(TRANSFORMS), $(shell sysl codegen --basepath=$(goMod)/gen --transform $(TRANSLOCATION)/$(file) --grammar ${GRAMMAR} --start ${START} --outdir=gen/${app} --app-name ${app} $(input)))
+	$(foreach file, $(TRANSFORMS), $(shell sysl codegen --basepath=$(goMod)/${out} --transform $(TRANSLOCATION)/$(file) --grammar ${GRAMMAR} --start ${START} --outdir=${out}/${app} --app-name ${app} $(input)))
 
 downstream:
-	$(foreach file, $(DOWNSTREAMTRANSFORMS), $(foreach downstream, $(down), $(shell sysl codegen --transform $(TRANSLOCATION)/$(file) --grammar ${GRAMMAR} --start ${START} --outdir=gen/${downstream} --app-name ${downstream} $(input))))
+	$(foreach file, $(DOWNSTREAMTRANSFORMS), $(foreach downstream, $(down), $(shell sysl codegen --basepath=$(goMod)/${out} --transform $(TRANSLOCATION)/$(file) --grammar ${GRAMMAR} --start ${START} --outdir=${out}/${downstream} --app-name ${downstream} $(input))))
 
 format:
-	gofmt -s -w gen/${app}/*
-	goimports -w gen/${app}/*
-	$(foreach path, $(down), $(shell gofmt -s -w gen/${path}/*))
-	$(foreach path, $(down), $(shell goimports -w gen/${path}/*))
+	gofmt -s -w ${out}/${app}/*
+	goimports -w ${out}/${app}/*
+	$(foreach path, $(down), $(shell gofmt -s -w ${out}/${path}/*))
+	$(foreach path, $(down), $(shell goimports -w ${out}/${path}/*))
 
 
 # Remove the tmp directory after

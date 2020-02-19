@@ -27,3 +27,6 @@ type GetFoobarListRequest struct {
 func (s *Stuff) Validate() error {
 	return validator.Validate(s)
 }
+
+// Str ...
+type Str string

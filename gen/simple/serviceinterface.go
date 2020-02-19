@@ -23,5 +23,5 @@ type GetFoobarListClient struct {
 
 // ServiceInterface for simple
 type ServiceInterface struct {
-	GetFoobarList func(ctx context.Context, req *GetFoobarListRequest, client GetFoobarListClient) (*mydependency.TodosResponse, error)
+	GetFoobarList func(ctx context.Context, req *GetFoobarListRequest, client GetFoobarListClient) (*Str, error)
 }
