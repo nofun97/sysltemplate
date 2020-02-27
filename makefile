@@ -51,9 +51,9 @@ setup:
 # Generate files with internal git service
 gen:
 	$(foreach file, $(TRANSFORMS), $(shell sysl codegen --basepath=$(basepath)/${out}/ --transform $(TRANSLOCATION)/$(file) --grammar ${GRAMMAR} --start ${START} --outdir=${out}/${app} --app-name ${app} $(input)))
-	$(shell sysl export -f "swagger" -o gen/model/out.json --app-name ${app} $(input))
-	resources --help || (echo "installing https://github.com/omeid/go-resources"; go get github.com/omeid/go-resources/cmd/resources)
-	$(shell cd gen/model && resources -var=swagger.file -package=${app} -output ../${app}/swagger.go out.json)
+	sysl export -f "swagger" -o gen/model/out.json --app-name ${app} $(input)
+	which resources || (echo "installing https://github.com/omeid/go-resources"; go get github.com/omeid/go-resources/cmd/resources)
+	cd gen/model && resources -var=swagger.file -package=${app} -output ../${app}/swagger.go out.json
 
 downstream:
 	$(foreach file, $(DOWNSTREAMTRANSFORMS), $(foreach downstream, $(down), $(shell sysl codegen --basepath=$(basepath)/${out}/ --transform $(TRANSLOCATION)/$(file) --grammar ${GRAMMAR} --start ${START} --outdir=${out}/${downstream} --app-name ${downstream} $(input))))
