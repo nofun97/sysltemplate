@@ -40,7 +40,7 @@ sysl: clean setup gen downstream format tmp
 setup:
 	# Syncing server-lib to $(SERVERLIB)
 	git clone https://github.service.anz/sysl/server-lib/ $(SERVERLIB)/server-lib || true  # Don't fail
-	cd  $(SERVERLIB)/server-lib && git fetch && git checkout tags/v0.1.9 || true
+	cd  $(SERVERLIB)/server-lib && git fetch && git checkout 77f233d258c882002bcad67c7004536571f405f8 || true
 	mkdir -p $(TMP)/server-lib/
 	mkdir -p ${out}/${app}
 	# Copying server-lib to $(TMP)
@@ -51,6 +51,9 @@ setup:
 # Generate files with internal git service
 gen:
 	$(foreach file, $(TRANSFORMS), $(shell sysl codegen --basepath=$(basepath)/${out}/ --transform $(TRANSLOCATION)/$(file) --grammar ${GRAMMAR} --start ${START} --outdir=${out}/${app} --app-name ${app} $(input)))
+	$(shell sysl export -f "swagger" -o gen/model/out.json --app-name ${app} $(input))
+	resources --help || (echo "installing https://github.com/omeid/go-resources"; go get github.com/omeid/go-resources/cmd/resources)
+	$(shell cd gen/model && resources -var=swagger.file -package=${app} -output ../${app}/swagger.go out.json)
 
 downstream:
 	$(foreach file, $(DOWNSTREAMTRANSFORMS), $(foreach downstream, $(down), $(shell sysl codegen --basepath=$(basepath)/${out}/ --transform $(TRANSLOCATION)/$(file) --grammar ${GRAMMAR} --start ${START} --outdir=${out}/${downstream} --app-name ${downstream} $(input))))
